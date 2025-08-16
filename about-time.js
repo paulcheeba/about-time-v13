@@ -1,6 +1,4 @@
-// about-time.js
-// Entry point (v13.0.5.1). Keeps legacy shims and initializes clocks.
-
+// about-time.js — v13.0.5.4
 import { registerSettings, MODULE_ID } from './module/settings.js';
 import { preloadTemplates } from './module/preloadTemplates.js';
 import { ElapsedTime } from './module/ElapsedTime.js';
@@ -8,18 +6,16 @@ import { PseudoClock } from './module/PseudoClock.js';
 import { DTMod } from './module/calendar/DTMod.js';
 import { DTCalc } from './module/calendar/DTCalc.js';
 
-// Side-effect imports (hooks)
-import './module/ATChat.js';           // /at chat command
-try { import('./module/ATToolbar.js'); } catch (e) { /* optional */ }
+// Side-effect imports (register hooks/features)
+import './module/ATChat.js';       // /at commands
+import './module/ATToolbar.js';    // toolbar tool (self-contained)
 
-// Legacy helper, used by macros
 export function DTNow() { return game.time.worldTime; }
 
 Hooks.once('init', () => {
   console.log(`${MODULE_ID} | Initializing`);
   registerSettings();
-  // Optionally preload (only real template path is loaded)
-  preloadTemplates().catch(() => {/* ignore */});
+  preloadTemplates().catch(() => {});
 });
 
 let operations;
@@ -77,7 +73,7 @@ Hooks.once('setup', () => {
     _load: ElapsedTime._load
   };
 
-  // Legacy/global shims
+  // Expose on game + legacy shims
   // @ts-ignore
   game.abouttime = operations;
   const warnProxy = {
