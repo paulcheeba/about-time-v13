@@ -14,8 +14,7 @@
     { "name": "chatGPT" }
   ],
   "esmodules": [
-    "about-time.js",
-    "module/ATToolbar.js"
+    "about-time.js"
   ],
   "styles": [],
   "packs": [],
