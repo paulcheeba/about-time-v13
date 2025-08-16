@@ -2,7 +2,7 @@
   "id": "about-time-v13",
   "title": "About Time",
   "description": "Time and scheduling utility for Foundry VTT, updated for v13 compatibility.",
-  "version": "13.0.5",
+  "version": "13.0.5.4",
   "compatibility": {
     "minimum": "11",
     "verified": "13",
