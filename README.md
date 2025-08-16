@@ -1,4 +1,4 @@
-# About Time (v13.0.5.4 — Toolbar Edition - fix attempt #4)
+# About Time (v13.0.5.5 — Toolbar Edition - fix attempt #5)
 
 **About Time** is a timekeeping and event scheduling utility for Foundry VTT.  
 It works with **Simple Calendar** (if installed) or falls back to Foundry’s core time system.
