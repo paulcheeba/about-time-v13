@@ -1,4 +1,4 @@
-// module/ATToolbar.js — v13.0.5.4
+// module/ATToolbar.js — v13.0.5.4 (fix: replace DialogV2 d.wait(...) with d.render(true))
 const MODULE_ID = "about-time-v13";
 const FA_ICON = "fa-regular fa-clock"; // small clock icon
 
@@ -101,17 +101,18 @@ function openEventManager() {
         if (action === "queue") {
           api.chatQueue?.({ showArgs: true, showUid: true, showDate: true, gmOnly: true });
           gmWhisper(`[${MODULE_ID}] Queue sent to chat.`);
-          dialog.render(true); // refresh
+          dialog.render(true); // refresh instead of close
         } else if (action === "stop") {
           api.flushQueue?.();
           gmWhisper(`[${MODULE_ID}] All events purged.`);
-          dialog.render(true); // refresh
+          dialog.render(true); // refresh instead of close
         } else {
           dialog.close();
         }
       }
     });
-    d.wait({ render: () => {} });
+    // FIX: DialogV2 has no instance wait() in v13 — render directly
+    d.render(true);
   } else {
     const dlg = new Dialog({
       title: "About Time — Event Manager",
