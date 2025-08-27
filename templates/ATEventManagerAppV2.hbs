@@ -8,25 +8,32 @@
       background: var(--atd-surface); color: var(--atd-fg); border: 1px solid var(--atd-accent);
     }
 
-    /* Layout */
-    .at-emv2 { min-width: 952px; }
-    .at-emv2 .row{display:flex;gap:.5rem;align-items:center;margin:.25rem 0}
-    .at-emv2 label{min-width:120px;color:var(--atd-fg)}
-    .at-emv2 input[type="text"], .at-emv2 input[type="search"]{width:100%}
-    .at-emv2 .row.buttons input[name="stopKey"]{ flex: 1; }
-    .at-emv2 table{width:100%;border-collapse:collapse;background:var(--atd-panel)}
-    .at-emv2 th, .at-emv2 td{padding:.45rem;border-bottom:1px solid var(--atd-accent)}
-    .at-emv2 th{color:var(--atd-yellow)}
-    .at-emv2 .muted{opacity:.9;color:var(--atd-muted);font-size:.9em}
-    .at-emv2 hr{border:none;border-top:1px solid var(--atd-accent);margin:.5rem 0}
+    /* Layout (minimal) */
+    .at-emv2 { min-width: 920px; }
+    .at-emv2 .row { display:flex; align-items:center; gap:.5rem; margin:.25rem 0; }
+    .at-emv2 label { min-width:120px; color:var(--atd-fg); }
+    .at-emv2 input[type="text"], .at-emv2 input[type="search"] { width:100%; }
+
+    /* Button row should not cut off: allow wrapping, don't force wide input */
+    .at-emv2 .row.buttons { flex-wrap: wrap; }
+    .at-emv2 .row.buttons input[type="text"] { width:auto; flex:0 0 auto; }
+    .at-emv2 .row.buttons button { flex:0 0 auto; }
+
+    .at-emv2 table { width:100%; border-collapse:collapse; background:var(--atd-panel) }
+    .at-emv2 th, .at-emv2 td { padding:.45rem; border-bottom:1px solid var(--atd-accent) }
+    .at-emv2 th { color:var(--atd-yellow) }
+    .at-emv2 .muted { opacity:.9; color:var(--atd-muted); font-size:.9em }
+    .at-emv2 hr { border:none; border-top:1px solid var(--atd-accent); margin:.5rem 0 }
 
     /* Buttons */
-    .at-btn{display:inline-block;padding:.35rem .6rem;border-radius:.5rem;border:1px solid var(--atd-accent);background:var(--atd-surface);
-            color:var(--atd-fg);line-height:1;white-space:nowrap}
-    .at-btn:hover{filter:brightness(1.1)}
-    .at-btn.primary{border-color:var(--atd-green);box-shadow:0 0 0 1px var(--atd-green) inset}
-    .at-btn.warn{border-color:var(--atd-orange);box-shadow:0 0 0 1px var(--atd-orange) inset}
-    .at-btn.danger{border-color:var(--atd-red);box-shadow:0 0 0 1px var(--atd-red) inset}
+    .at-btn { display:inline-block; padding:.35rem .6rem; border-radius:.5rem; border:1px solid var(--atd-accent);
+              background:var(--atd-surface); color:var(--atd-fg); line-height:1; white-space:nowrap }
+    .at-btn:hover { filter:brightness(1.1) }
+    .at-btn.primary { border-color:var(--atd-green); box-shadow:0 0 0 1px var(--atd-green) inset }
+    .at-btn.warn    { border-color:var(--atd-orange); box-shadow:0 0 0 1px var(--atd-orange) inset }
+    .at-btn.danger  { border-color:var(--atd-red);    box-shadow:0 0 0 1px var(--atd-red) inset }
+
+    .board-title { margin:.25rem 0 .5rem; color:var(--atd-yellow); font-weight:600; }
   </style>
 
   <div class="controls">
@@ -66,6 +73,7 @@
 
   <hr />
 
+  <h3 class="board-title">Event Status Board</h3>
   <div class="queue">
     <table>
       <thead>
