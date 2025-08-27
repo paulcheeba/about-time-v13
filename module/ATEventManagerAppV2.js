@@ -1,8 +1,6 @@
-// File: modules/about-time-v13/module/ATEventManagerAppV2.js
-// v13.0.8.0.3 — Event Manager V2 (dev-only; open via macro)
-// Fixes: actions mapping -> functions; min width 920px; rest unchanged.
+// v13.0.8.0.2 — EM V2 fixes: pass element to row actions (Stop/Copy UID)
 
-const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api; // v12+
+const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 import { ElapsedTime } from "./ElapsedTime.js";
 import { MODULE_ID } from "./settings.js";
 
@@ -12,17 +10,17 @@ export class ATEventManagerAppV2 extends HandlebarsApplicationMixin(ApplicationV
     classes: ["about-time", "at-emv2", "at-dracula"],
     tag: "form",
     window: { title: "About Time — Event Manager V2", icon: "fas fa-clock", resizable: true },
-    position: { width: 920, height: "auto" }, // min-width enforced after render
-    // IMPORTANT: Foundry expects functions here (not strings).
+    position: { width: 920, height: "auto" },
     actions: {
-      create(ev, el)       { return this.onCreate(ev); },
-      list(ev, el)         { return this.onList(ev); },
-      flush(ev, el)        { return this.onFlush(ev); },
-      "flush-rem"(ev, el)  { return this.onFlushRem(ev); },
-      "stop-by-name"(ev)   { return this.onStopByName(ev); },
-      "stop-by-uid"(ev)    { return this.onStopByUID(ev); },
-      "row-stop"(ev)       { return this.onRowStop(ev); },
-      "copy-uid"(ev)       { return this.onCopyUID(ev); }
+      create(ev, el)      { return this.onCreate(ev); },
+      list(ev, el)        { return this.onList(ev); },
+      flush(ev, el)       { return this.onFlush(ev); },
+      "flush-rem"(ev, el) { return this.onFlushRem(ev); },
+      "stop-by-name"(ev)  { return this.onStopByName(ev); },
+      "stop-by-uid"(ev)   { return this.onStopByUID(ev); },
+      // pass clicked element so we can read data-uid reliably
+      "row-stop"(ev, el)  { return this.onRowStop(ev, el); },
+      "copy-uid"(ev, el)  { return this.onCopyUID(ev, el); }
     }
   };
 
@@ -30,10 +28,9 @@ export class ATEventManagerAppV2 extends HandlebarsApplicationMixin(ApplicationV
 
   #ticker = null;
 
-  // Start ticker after render; also force a min-width so the form/UID fields are readable.
   async render(force, options = {}) {
     const out = await super.render(force, options);
-    this.element?.style && (this.element.style.minWidth = "920px"); // enforce min width
+    this.element?.style && (this.element.style.minWidth = "920px");
     if (!this.#ticker) this.#startTicker();
     return out;
   }
@@ -46,8 +43,7 @@ export class ATEventManagerAppV2 extends HandlebarsApplicationMixin(ApplicationV
     const entries = [];
     if (q?.array && Number.isInteger(q.size)) {
       for (let i = 0; i < q.size; i++) {
-        const e = q.array[i];
-        if (!e) continue;
+        const e = q.array[i]; if (!e) continue;
         const meta = e?._args?.[0] ?? {};
         const name = String(meta.__atName ?? "");
         const msg  = String(meta.__atMsg  ?? "");
@@ -55,9 +51,7 @@ export class ATEventManagerAppV2 extends HandlebarsApplicationMixin(ApplicationV
         const time = Number(e._time || 0);
         entries.push({
           uid: e._uid,
-          name,
-          msg,
-          time,
+          name, msg, time,
           startTxt: this.#fmtTimestamp(time),
           remainingTxt: this.#fmtDHMS(Math.max(0, Math.floor(time - now))),
           recurring: !!e?._recurring,
@@ -68,7 +62,7 @@ export class ATEventManagerAppV2 extends HandlebarsApplicationMixin(ApplicationV
     return { isGM: !!game.user?.isGM, entries };
   }
 
-  // -------- Actions (instance methods) --------
+  // ---- Actions ----
   async onCreate(event) {
     if (!game.user?.isGM) return ui.notifications?.warn?.("GM only");
     const fd = new FormData(this.form);
@@ -137,7 +131,7 @@ export class ATEventManagerAppV2 extends HandlebarsApplicationMixin(ApplicationV
 
     if (count) {
       const flags = (await game.user.getFlag(MODULE_ID)) || {};
-      for (const k of Object.keys(flags)) if (flags[k]) {
+      for (const k of Object.keys(flags)) {
         let exists = false;
         if (q?.array && Number.isInteger(q.size)) {
           for (let i = 0; i < q.size; i++) if (q.array[i]?._uid === flags[k]) { exists = true; break; }
@@ -184,23 +178,30 @@ export class ATEventManagerAppV2 extends HandlebarsApplicationMixin(ApplicationV
     this.render();
   }
 
-  async onRowStop(event) {
+  async onRowStop(event, el) {
     if (!game.user?.isGM) return;
-    const uid = event?.currentTarget?.dataset?.uid;
+    const uid = el?.dataset?.uid || event?.currentTarget?.dataset?.uid;
     if (!uid) return;
     const ok = (game.abouttime ?? game.Gametime).clearTimeout(uid);
     if (ok) await this.#gmWhisper(`<p>[${MODULE_ID}] Stopped event <code>${foundry.utils.escapeHTML(uid)}</code>.</p>`);
     this.render();
   }
 
-  async onCopyUID(event) {
-    const uid = event?.currentTarget?.dataset?.uid;
+  async onCopyUID(event, el) {
+    const uid = el?.dataset?.uid || event?.currentTarget?.dataset?.uid;
     if (!uid) return;
-    try { await navigator.clipboard?.writeText?.(uid); ui.notifications?.info?.("UID copied to clipboard"); }
-    catch { ui.notifications?.warn?.("Clipboard unavailable"); }
+    try {
+      await navigator.clipboard?.writeText?.(uid);
+      ui.notifications?.info?.("UID copied to clipboard");
+    } catch {
+      // fallback for older browsers/permissions
+      const ta = document.createElement("textarea");
+      ta.value = uid; document.body.appendChild(ta);
+      ta.select(); document.execCommand?.("copy"); document.body.removeChild(ta);
+      ui.notifications?.info?.("UID copied (fallback)");
+    }
   }
 
-  // -------- Helpers --------
   #gmWhisper(html) {
     const ids = ChatMessage.getWhisperRecipients("GM").filter((u) => u.active).map((u) => u.id);
     return ChatMessage.create({ content: html, whisper: ids });
@@ -253,5 +254,4 @@ export class ATEventManagerAppV2 extends HandlebarsApplicationMixin(ApplicationV
   #stopTicker() { if (this.#ticker) { clearInterval(this.#ticker); this.#ticker = null; } }
 }
 
-// Convenience export for macro users
 export function openATEventManagerV2(options = {}) { return new ATEventManagerAppV2(options).render(true); }
