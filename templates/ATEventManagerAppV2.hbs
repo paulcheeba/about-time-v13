@@ -2,16 +2,25 @@
   <style>
     :root { --atd-bg:#282a36; --atd-panel:#1e1f29; --atd-surface:#2b2e3b; --atd-fg:#f8f8f2; --atd-muted:#bd93f9;
             --atd-accent:#6272a4; --atd-green:#50fa7b; --atd-red:#ff5555; --atd-orange:#ffb86c; --atd-yellow:#f1fa8c; --atd-cyan:#8be9fd; --atd-pink:#ff79c6; }
+
     .at-dracula { color: var(--atd-fg); }
-    .at-dracula input, .at-dracula select, .at-dracula textarea { background: var(--atd-surface); color: var(--atd-fg); border: 1px solid var(--atd-accent); }
+    .at-dracula input, .at-dracula select, .at-dracula textarea {
+      background: var(--atd-surface); color: var(--atd-fg); border: 1px solid var(--atd-accent);
+    }
+
+    /* Layout */
+    .at-emv2 { min-width: 920px; }
     .at-emv2 .row{display:flex;gap:.5rem;align-items:center;margin:.25rem 0}
     .at-emv2 label{min-width:120px;color:var(--atd-fg)}
     .at-emv2 input[type="text"], .at-emv2 input[type="search"]{width:100%}
+    .at-emv2 .row.buttons input[name="stopKey"]{ flex: 1; }
     .at-emv2 table{width:100%;border-collapse:collapse;background:var(--atd-panel)}
     .at-emv2 th, .at-emv2 td{padding:.45rem;border-bottom:1px solid var(--atd-accent)}
     .at-emv2 th{color:var(--atd-yellow)}
     .at-emv2 .muted{opacity:.9;color:var(--atd-muted);font-size:.9em}
     .at-emv2 hr{border:none;border-top:1px solid var(--atd-accent);margin:.5rem 0}
+
+    /* Buttons */
     .at-btn{display:inline-block;padding:.35rem .6rem;border-radius:.5rem;border:1px solid var(--atd-accent);background:var(--atd-surface);
             color:var(--atd-fg);line-height:1;white-space:nowrap}
     .at-btn:hover{filter:brightness(1.1)}
